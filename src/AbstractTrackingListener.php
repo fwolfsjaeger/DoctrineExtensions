@@ -223,7 +223,14 @@ abstract class AbstractTrackingListener extends MappedEventSubscriber
             }
         }
 
-        $property->setValue($object, $newValue);
+        $setterName = 'set' . ucfirst($field);
+        $reflectionClass = $meta->getReflectionClass();
+
+        if ($reflectionClass->hasMethod($setterName)) {
+            $reflectionClass->getMethod($setterName)->invoke($object, $newValue);
+        } else {
+            $property->setValue($object, $newValue);
+        }
 
         if ($object instanceof NotifyPropertyChanged) {
             $uow = $eventAdapter->getObjectManager()->getUnitOfWork();
